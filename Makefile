@@ -1,21 +1,43 @@
 SHELL := /bin/bash
 
-.PHONY: dev backend frontend test seed docker
+.PHONY: dev setup setup-backend setup-frontend backend frontend seed test clean
 
+PYTHON ?= python3
+VENV := backend/.venv
+PIP := $(VENV)/bin/pip
+PY := $(VENV)/bin/python
+UVICORN := $(VENV)/bin/uvicorn
+
+setup: setup-backend setup-frontend
+
+setup-backend:
+	$(PYTHON) -m venv $(VENV)
+	$(PIP) install --upgrade pip
+	$(PIP) install -r backend/requirements.txt
+
+setup-frontend:
+	cd frontend && npm install
+
+# Starts both apps locally without Docker. Run `make setup` first.
 dev:
-	docker compose up --build
+	@if [ ! -x "$(UVICORN)" ]; then echo "Backend venv missing. Run: make setup-backend"; exit 1; fi
+	@if [ ! -d "frontend/node_modules" ]; then echo "Frontend dependencies missing. Run: make setup-frontend"; exit 1; fi
+	@trap 'kill 0' EXIT; \
+	( cd backend && . .venv/bin/activate && uvicorn app.main:app --reload --host 127.0.0.1 --port 8000 ) & \
+	( cd frontend && NEXT_PUBLIC_API_URL=http://127.0.0.1:8000 npm run dev ) & \
+	wait
 
 backend:
-	cd backend && uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+	cd backend && . .venv/bin/activate && uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 
 frontend:
-	cd frontend && npm run dev
-
-test:
-	cd backend && pytest
+	cd frontend && NEXT_PUBLIC_API_URL=http://127.0.0.1:8000 npm run dev
 
 seed:
-	cd backend && python scripts/seed_sample.py
+	cd backend && . .venv/bin/activate && python scripts/seed_sample.py
 
-docker:
-	docker compose up --build
+test:
+	cd backend && . .venv/bin/activate && pytest
+
+clean:
+	rm -rf backend/.venv backend/.pytest_cache frontend/node_modules frontend/.next .faiss backend/.faiss backend/research.db

@@ -1,18 +1,18 @@
 # API Documentation
 
-Base URL: `http://localhost:8000`
+Base URL for local development: `http://127.0.0.1:8000`
 
 Interactive OpenAPI documentation is available at `/docs` when the backend is running.
 
 ## Projects
 
 ### `POST /api/projects`
-Creates a project, searches ArXiv, stores metadata, builds embeddings, indexes FAISS vectors, clusters papers, and marks the project ready.
+Creates a project, searches ArXiv, stores metadata, builds embeddings, indexes vectors, clusters papers, and marks the project ready.
 
 Request:
 
 ```json
-{"topic":"Large Language Models","max_papers":500}
+{"topic":"Large Language Models","max_papers":100}
 ```
 
 Response: project id, topic, status, and creation time.
