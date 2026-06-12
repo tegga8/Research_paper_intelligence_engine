@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: cli dev setup setup-backend setup-frontend backend frontend seed test clean
+.PHONY: dev setup setup-backend setup-frontend backend frontend seed test clean
 
 PYTHON ?= python3
 VENV := backend/.venv
@@ -44,3 +44,4 @@ test:
 
 clean:
 	rm -rf backend/.venv backend/.pytest_cache frontend/node_modules frontend/.next .faiss backend/.faiss backend/research.db research_terminal.db
+	rm -rf backend/.venv backend/.pytest_cache frontend/node_modules frontend/.next .faiss backend/.faiss backend/research.db

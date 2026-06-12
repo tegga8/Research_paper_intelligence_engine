@@ -1,5 +1,6 @@
 'use client';
 import { Background, Controls, MiniMap, ReactFlow } from '@xyflow/react';
+import ReactFlow, { Background, Controls, MiniMap } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
 export function CitationGraph({ graph }: { graph: { nodes: { id: string; label: string; cluster?: number }[]; edges: { id: string; source: string; target: string }[] } }) {
