@@ -8,6 +8,9 @@ PIP := $(VENV)/bin/pip
 PY := $(VENV)/bin/python
 UVICORN := $(VENV)/bin/uvicorn
 
+cli:
+	python3 terminal_app.py
+
 setup: setup-backend setup-frontend
 
 setup-backend:
@@ -40,4 +43,5 @@ test:
 	cd backend && . .venv/bin/activate && pytest
 
 clean:
+	rm -rf backend/.venv backend/.pytest_cache frontend/node_modules frontend/.next .faiss backend/.faiss backend/research.db research_terminal.db
 	rm -rf backend/.venv backend/.pytest_cache frontend/node_modules frontend/.next .faiss backend/.faiss backend/research.db
