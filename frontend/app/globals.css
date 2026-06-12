@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: dark; }
+body {
+  background: radial-gradient(circle at top left, rgba(124,58,237,.24), transparent 32rem), #020617;
+  color: #e5e7eb;
+}
+.glass { @apply border border-white/10 bg-white/[0.07] backdrop-blur-xl shadow-glow; }
+.metric { @apply rounded-2xl border border-white/10 bg-white/[0.07] p-5 shadow-glow backdrop-blur-xl; }
