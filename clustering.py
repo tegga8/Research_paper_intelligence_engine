@@ -11,6 +11,15 @@ import numpy as np
 from database import Paper, PaperDatabase
 from embeddings import ensure_embeddings
 
+GENERIC_RESEARCH_STOPWORDS = {
+    "paper", "papers", "study", "studies", "method", "methods", "approach",
+    "approaches", "model", "models", "system", "systems", "task", "tasks",
+    "result", "results", "show", "shows", "using", "based", "propose",
+    "proposes", "proposed", "new", "novel", "data", "dataset", "datasets",
+    "research", "work", "works", "analysis", "performance",
+    "experiments", "experimental",
+}
+
 
 def cluster_papers(topic: str, papers: Sequence[Paper], db: PaperDatabase, requested_clusters: int = 5) -> dict[str, list[Paper]]:
     if not papers:
@@ -35,10 +44,11 @@ def cluster_papers(topic: str, papers: Sequence[Paper], db: PaperDatabase, reque
 def name_clusters(papers: Sequence[Paper], labels: Sequence[int], vectors: np.ndarray | None = None) -> dict[int, str]:
     if importlib.util.find_spec("sklearn") is None:
         return _category_names(papers, labels)
-    from sklearn.feature_extraction.text import TfidfVectorizer
+    from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS, TfidfVectorizer
 
     try:
-        vectorizer = TfidfVectorizer(stop_words="english", ngram_range=(1, 3), max_features=3000)
+        stop_words = list(set(ENGLISH_STOP_WORDS) | GENERIC_RESEARCH_STOPWORDS)
+        vectorizer = TfidfVectorizer(stop_words=stop_words, ngram_range=(1, 3), max_features=3000, min_df=1)
         matrix = vectorizer.fit_transform([paper.text for paper in papers])
         terms = vectorizer.get_feature_names_out()
         names: dict[int, str] = {}
@@ -55,10 +65,11 @@ def name_clusters(papers: Sequence[Paper], labels: Sequence[int], vectors: np.nd
 def cluster_keywords(papers: Sequence[Paper], max_keywords: int = 6) -> list[str]:
     if importlib.util.find_spec("sklearn") is None:
         return _simple_keywords(papers, max_keywords)
-    from sklearn.feature_extraction.text import TfidfVectorizer
+    from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS, TfidfVectorizer
 
     try:
-        vectorizer = TfidfVectorizer(stop_words="english", ngram_range=(1, 3), max_features=1000)
+        stop_words = list(set(ENGLISH_STOP_WORDS) | GENERIC_RESEARCH_STOPWORDS)
+        vectorizer = TfidfVectorizer(stop_words=stop_words, ngram_range=(1, 3), max_features=1000, min_df=1)
         matrix = vectorizer.fit_transform([paper.text for paper in papers])
         weights = np.asarray(matrix.mean(axis=0)).ravel()
         terms = vectorizer.get_feature_names_out()
@@ -104,7 +115,9 @@ def _dedupe_terms(terms: Sequence[str]) -> list[str]:
 def _pretty_name(terms: Sequence[str]) -> str:
     if not terms:
         return "General Research"
-    return " / ".join(term.title() for term in terms[:3])
+    phrase_terms = [term for term in terms if len(term.split()) >= 2]
+    candidate = phrase_terms[0] if phrase_terms else terms[0]
+    return candidate.title()
 
 
 def _category_names(papers: Sequence[Paper], labels: Sequence[int]) -> dict[int, str]:

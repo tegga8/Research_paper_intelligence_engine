@@ -12,7 +12,7 @@ The app intentionally does **not** require React, NextJS, FastAPI, Flask, Docker
 
 Given a topic such as **Large Language Models**, **Retrieval-Augmented Generation**, or **Computer Vision**, the terminal app can:
 
-- Download ArXiv paper metadata into local SQLite.
+- Download ArXiv paper metadata into local SQLite with topic-aware query construction and relevance filtering.
 - Generate transformer sentence embeddings with `sentence-transformers` and `all-MiniLM-L6-v2`.
 - Store embeddings locally under `data/embeddings/`.
 - Build and query a local FAISS vector index, with a NumPy fallback when FAISS is unavailable.

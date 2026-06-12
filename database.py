@@ -62,12 +62,22 @@ class PaperDatabase:
         self.conn.commit()
 
     def fetch_arxiv(self, topic: str, max_papers: int) -> list[Paper]:
+        from topic_relevance import build_arxiv_query, rank_topic_relevance
+
+        requested = max(1, max_papers)
+        fetch_size = min(max(requested * 4, 50), 1000)
+        papers = self._fetch_arxiv_query(build_arxiv_query(topic), fetch_size)
+        if not papers:
+            papers = self._fetch_arxiv_query(f"all:{topic}", fetch_size)
+        return rank_topic_relevance(topic, papers, requested)
+
+    def _fetch_arxiv_query(self, search_query: str, max_papers: int) -> list[Paper]:
         query = urllib.parse.urlencode(
             {
-                "search_query": f"all:{topic}",
+                "search_query": search_query,
                 "start": 0,
                 "max_results": max_papers,
-                "sortBy": "submittedDate",
+                "sortBy": "relevance",
                 "sortOrder": "descending",
             }
         )
