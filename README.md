@@ -90,6 +90,3 @@ backend/              Older optional service prototype, not required for CLI
 frontend/             Older optional UI prototype, not required for CLI
 ```
 
-## Resume-style summary
-
-> Built a Research Intelligence Engine that analyzed scientific literature using transformer embeddings, FAISS retrieval, clustering, recommendation systems, trend analysis, and automated research-gap discovery.
